@@ -39,28 +39,28 @@ jobs:
       - name: Create Trivy GitHub Markdown Template
         run: |
           mkdir -p .trivy
-          cat <<EOF > .trivy/github-markdown.tpl
+          cat <<'EOF' > .trivy/github-markdown.tpl
           {{ define "output" }}
 
           ## 📊 **Trivy Scan Summary**
-          
+
           ### 🚨 **Vulnerability Count Summary**
-          
+
           | Severity       | Count |
           |----------------|-------|
           | 🟥 **`CRITICAL`** | {{ len (filter . "CRITICAL") }} |
           | 🟧 **`HIGH`**     | {{ len (filter . "HIGH") }} |
           | 🟨 `MEDIUM`     | {{ len (filter . "MEDIUM") }} |
-          | 🟦 `LOW`        | {{ len (filter . "LOW") }} |
+          | 🟦 `LOW`        | {{ len (filter .LOW") }} |
           | ⬜ `UNKNOWN`    | {{ len (filter . "UNKNOWN") }} |
-          
+
           ---
-          
+
           {{- range . }}
           ### 🔍 **Target**: `{{ .Target }}`
-          
+
           {{- if .Vulnerabilities }}
-          
+
           #### 🟥 **CRITICAL**
           {{- range (filterVulns .Vulnerabilities "CRITICAL") }}
           - **Package**: `{{ .PkgName }}`
@@ -68,7 +68,7 @@ jobs:
             - **Installed**: `{{ .InstalledVersion }}`
             - **Fixed**: `{{ .FixedVersion }}`
           {{- end }}
-          
+
           #### 🟧 **HIGH**
           {{- range (filterVulns .Vulnerabilities "HIGH") }}
           - **Package**: `{{ .PkgName }}`
@@ -76,7 +76,7 @@ jobs:
             - **Installed**: `{{ .InstalledVersion }}`
             - **Fixed**: `{{ .FixedVersion }}`
           {{- end }}
-          
+
           #### 🟨 MEDIUM
           {{- range (filterVulns .Vulnerabilities "MEDIUM") }}
           - **Package**: `{{ .PkgName }}`
@@ -84,7 +84,7 @@ jobs:
             - **Installed**: `{{ .InstalledVersion }}`
             - **Fixed**: `{{ .FixedVersion }}`
           {{- end }}
-          
+
           #### 🟦 LOW
           {{- range (filterVulns .Vulnerabilities "LOW") }}
           - **Package**: `{{ .PkgName }}`
@@ -92,7 +92,7 @@ jobs:
             - **Installed**: `{{ .InstalledVersion }}`
             - **Fixed**: `{{ .FixedVersion }}`
           {{- end }}
-          
+
           #### ⬜ UNKNOWN
           {{- range (filterVulns .Vulnerabilities "UNKNOWN") }}
           - **Package**: `{{ .PkgName }}`
@@ -100,16 +100,15 @@ jobs:
             - **Installed**: `{{ .InstalledVersion }}`
             - **Fixed**: `{{ .FixedVersion }}`
           {{- end }}
-          
+
           {{- else }}
           ✅ No vulnerabilities found.
           {{- end }}
-          
+
           {{- end }}
-          
+
           {{ end }}
-          
-          EOF        
+          EOF
 
       - name: Trivy image Scan
         uses: aquasecurity/trivy-action@0.30.0
