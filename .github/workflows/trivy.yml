@@ -40,10 +40,12 @@ jobs:
         run: |
           mkdir -p .trivy
           cat <<EOF > .trivy/github-markdown.tpl
+          {{- define "output" -}}
+
           ## 📊 **Trivy Scan Summary**
-
+          
           {{ $crit := 0 }}{{ $high := 0 }}{{ $med := 0 }}{{ $low := 0 }}{{ $unk := 0 }}
-
+          
           {{- range . }}
             {{- range .Vulnerabilities }}
               {{- if eq .Severity "CRITICAL" }}{{ $crit = add $crit 1 }}{{ end }}
@@ -53,9 +55,9 @@ jobs:
               {{- if eq .Severity "UNKNOWN" }}{{ $unk = add $unk 1 }}{{ end }}
             {{- end }}
           {{- end }}
-
+          
           ### 🚨 **Vulnerability Count Summary**
-
+          
           | Severity       | Count        |
           |----------------|--------------|
           | 🟥 **`CRITICAL`** | **{{ $crit }}** |
@@ -63,9 +65,9 @@ jobs:
           | 🟨 `MEDIUM`     | {{ $med }}       |
           | 🟦 `LOW`        | {{ $low }}       |
           | ⬜ `UNKNOWN`    | {{ $unk }}       |
-
+          
           ---
-
+          
           {{- range . }}
           ### 🔍 **Target**: `{{ .Target }}`
           {{- if .Class }}  
@@ -74,9 +76,9 @@ jobs:
           {{- if .Type }}
           *Type*: `{{ .Type }}`  
           {{- end }}
-
+          
           {{- if .Vulnerabilities }}
-
+          
           #### 🟥 **CRITICAL**
           {{- range .Vulnerabilities }}
           {{- if eq .Severity "CRITICAL" }}
@@ -86,7 +88,7 @@ jobs:
             - **Fixed**: `{{ .FixedVersion }}`
           {{- end }}
           {{- end }}
-
+          
           #### 🟧 **HIGH**
           {{- range .Vulnerabilities }}
           {{- if eq .Severity "HIGH" }}
@@ -96,7 +98,7 @@ jobs:
             - **Fixed**: `{{ .FixedVersion }}`
           {{- end }}
           {{- end }}
-
+          
           #### 🟨 MEDIUM
           {{- range .Vulnerabilities }}
           {{- if eq .Severity "MEDIUM" }}
@@ -106,7 +108,7 @@ jobs:
             - **Fixed**: `{{ .FixedVersion }}`
           {{- end }}
           {{- end }}
-
+          
           #### 🟦 LOW
           {{- range .Vulnerabilities }}
           {{- if eq .Severity "LOW" }}
@@ -116,7 +118,7 @@ jobs:
             - **Fixed**: `{{ .FixedVersion }}`
           {{- end }}
           {{- end }}
-
+          
           #### ⬜ UNKNOWN
           {{- range .Vulnerabilities }}
           {{- if eq .Severity "UNKNOWN" }}
@@ -126,12 +128,15 @@ jobs:
             - **Fixed**: `{{ .FixedVersion }}`
           {{- end }}
           {{- end }}
-
+          
           {{- else }}
           ✅ No vulnerabilities found.
           {{- end }}
-
+          
           {{ end }}
+          
+          {{- end }}
+          
           EOF        
 
       - name: Trivy image Scan
