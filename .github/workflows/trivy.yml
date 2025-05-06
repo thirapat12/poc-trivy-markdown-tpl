@@ -34,7 +34,7 @@ jobs:
         with:
           context: .
           push: false
-          tags: trivy-node:12-alpine
+          tags: ghrc.io/thirapat12/trivy-node:12-alpine
 
       - name: Create Trivy GitHub Markdown Template
         run: |
@@ -138,7 +138,7 @@ jobs:
         id: trivy
         uses: aquasecurity/trivy-action@0.30.0
         with:
-          image-ref: trivy-node:12-alpine
+          image-ref: ghrc.io/thirapat12/trivy-node:12-alpine
           format: template
           template: '@.trivy/github-markdown.tpl'
           output: 'trivy-report.md'
