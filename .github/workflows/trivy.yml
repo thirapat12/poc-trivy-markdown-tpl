@@ -102,4 +102,5 @@ jobs:
 
       - name: Upload Trivy Report to GitHub Summary
         run: |
+          echo -e "\n---\n## 📄 Trivy Vulnerability Report\n" >> $GITHUB_STEP_SUMMARY
           cat trivy-report.md >> $GITHUB_STEP_SUMMARY
