@@ -10,6 +10,12 @@ on:
       - main
   workflow_dispatch:
 
+permissions:
+  contents: read
+  security-events: write
+  # pull-requests: read
+  actions: write
+
 jobs:
   trivy:
     runs-on: ubuntu-latest
@@ -23,18 +29,12 @@ jobs:
       #     username: ${{ vars.DOCKERHUB_USERNAME }}
       #     password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
           context: .
           push: false
-          tags: ghrc.io/thirapat12/trivy-node:12-alpine
+          tags: thirapat12/thirapat12-node:12-alpine
 
       - name: Create Trivy GitHub Markdown Template
         run: |
@@ -135,14 +135,14 @@ jobs:
           EOF        
 
       - name: Trivy image Scan
-        id: trivy
         uses: aquasecurity/trivy-action@0.30.0
         with:
-          image-ref: ghrc.io/thirapat12/trivy-node:12-alpine
+          image-ref: thirapat12/thirapat12-node:12-alpine
           format: template
           template: '@.trivy/github-markdown.tpl'
           output: 'trivy-report.md'
           exit-code: 0
+          vuln-type: 'os,library'
           ignore-unfixed: true
 
       - name: Upload Trivy Report to GitHub Summary
