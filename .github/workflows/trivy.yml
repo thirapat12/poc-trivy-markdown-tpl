@@ -40,102 +40,74 @@ jobs:
         run: |
           mkdir -p .trivy
           cat <<EOF > .trivy/github-markdown.tpl
-          {{- define "output" -}}
+          {{ define "output" }}
 
           ## 📊 **Trivy Scan Summary**
           
-          {{ $crit := 0 }}{{ $high := 0 }}{{ $med := 0 }}{{ $low := 0 }}{{ $unk := 0 }}
-          
-          {{- range . }}
-            {{- range .Vulnerabilities }}
-              {{- if eq .Severity "CRITICAL" }}{{ $crit = add $crit 1 }}{{ end }}
-              {{- if eq .Severity "HIGH" }}{{ $high = add $high 1 }}{{ end }}
-              {{- if eq .Severity "MEDIUM" }}{{ $med = add $med 1 }}{{ end }}
-              {{- if eq .Severity "LOW" }}{{ $low = add $low 1 }}{{ end }}
-              {{- if eq .Severity "UNKNOWN" }}{{ $unk = add $unk 1 }}{{ end }}
-            {{- end }}
-          {{- end }}
-          
           ### 🚨 **Vulnerability Count Summary**
           
-          | Severity       | Count        |
-          |----------------|--------------|
-          | 🟥 **`CRITICAL`** | **{{ $crit }}** |
-          | 🟧 **`HIGH`**     | **{{ $high }}** |
-          | 🟨 `MEDIUM`     | {{ $med }}       |
-          | 🟦 `LOW`        | {{ $low }}       |
-          | ⬜ `UNKNOWN`    | {{ $unk }}       |
+          | Severity       | Count |
+          |----------------|-------|
+          | 🟥 **`CRITICAL`** | {{ len (filter . "CRITICAL") }} |
+          | 🟧 **`HIGH`**     | {{ len (filter . "HIGH") }} |
+          | 🟨 `MEDIUM`     | {{ len (filter . "MEDIUM") }} |
+          | 🟦 `LOW`        | {{ len (filter . "LOW") }} |
+          | ⬜ `UNKNOWN`    | {{ len (filter . "UNKNOWN") }} |
           
           ---
           
           {{- range . }}
           ### 🔍 **Target**: `{{ .Target }}`
-          {{- if .Class }}  
-          *Class*: `{{ .Class }}`  
-          {{- end }}
-          {{- if .Type }}
-          *Type*: `{{ .Type }}`  
-          {{- end }}
           
           {{- if .Vulnerabilities }}
           
           #### 🟥 **CRITICAL**
-          {{- range .Vulnerabilities }}
-          {{- if eq .Severity "CRITICAL" }}
+          {{- range (filterVulns .Vulnerabilities "CRITICAL") }}
           - **Package**: `{{ .PkgName }}`
             - **Vuln**: [{{ .VulnerabilityID }}](https://avd.aquasec.com/nvd/{{ .VulnerabilityID }})
             - **Installed**: `{{ .InstalledVersion }}`
             - **Fixed**: `{{ .FixedVersion }}`
-          {{- end }}
           {{- end }}
           
           #### 🟧 **HIGH**
-          {{- range .Vulnerabilities }}
-          {{- if eq .Severity "HIGH" }}
+          {{- range (filterVulns .Vulnerabilities "HIGH") }}
           - **Package**: `{{ .PkgName }}`
             - **Vuln**: [{{ .VulnerabilityID }}](https://avd.aquasec.com/nvd/{{ .VulnerabilityID }})
             - **Installed**: `{{ .InstalledVersion }}`
             - **Fixed**: `{{ .FixedVersion }}`
-          {{- end }}
           {{- end }}
           
           #### 🟨 MEDIUM
-          {{- range .Vulnerabilities }}
-          {{- if eq .Severity "MEDIUM" }}
+          {{- range (filterVulns .Vulnerabilities "MEDIUM") }}
           - **Package**: `{{ .PkgName }}`
             - **Vuln**: [{{ .VulnerabilityID }}](https://avd.aquasec.com/nvd/{{ .VulnerabilityID }})
             - **Installed**: `{{ .InstalledVersion }}`
             - **Fixed**: `{{ .FixedVersion }}`
-          {{- end }}
           {{- end }}
           
           #### 🟦 LOW
-          {{- range .Vulnerabilities }}
-          {{- if eq .Severity "LOW" }}
+          {{- range (filterVulns .Vulnerabilities "LOW") }}
           - **Package**: `{{ .PkgName }}`
             - **Vuln**: [{{ .VulnerabilityID }}](https://avd.aquasec.com/nvd/{{ .VulnerabilityID }})
             - **Installed**: `{{ .InstalledVersion }}`
             - **Fixed**: `{{ .FixedVersion }}`
-          {{- end }}
           {{- end }}
           
           #### ⬜ UNKNOWN
-          {{- range .Vulnerabilities }}
-          {{- if eq .Severity "UNKNOWN" }}
+          {{- range (filterVulns .Vulnerabilities "UNKNOWN") }}
           - **Package**: `{{ .PkgName }}`
             - **Vuln**: [{{ .VulnerabilityID }}](https://avd.aquasec.com/nvd/{{ .VulnerabilityID }})
             - **Installed**: `{{ .InstalledVersion }}`
             - **Fixed**: `{{ .FixedVersion }}`
-          {{- end }}
           {{- end }}
           
           {{- else }}
           ✅ No vulnerabilities found.
           {{- end }}
           
-          {{ end }}
-          
           {{- end }}
+          
+          {{ end }}
           
           EOF        
 
