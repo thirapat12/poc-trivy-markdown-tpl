@@ -40,7 +40,7 @@ jobs:
         run: |
           mkdir -p .trivy
           cat <<'EOF' > .trivy/github-markdown.tpl
-          ## 📊 **Trivy Scan Summary**
+          ## 📊 Trivy Scan Summary
 
           {{ $crit := 0 }}{{ $high := 0 }}{{ $med := 0 }}{{ $low := 0 }}{{ $unk := 0 }}
 
@@ -54,7 +54,7 @@ jobs:
             {{- end }}
           {{- end }}
 
-          ### 🚨 **Vulnerability Count Summary**
+          ### 🚨 Vulnerability Count Summary
 
           | Severity       | Count        |
           |----------------|--------------|
@@ -67,7 +67,7 @@ jobs:
           ---
 
           {{- range . }}
-          ### 🔍 **Target**: `{{ .Target }}`
+          ### 🔍 Target: `{{ .Target }}`
           {{- if .Class }}  
           *Class*: `{{ .Class }}`  
           {{- end }}
@@ -79,19 +79,13 @@ jobs:
           | Package | Vulnerability ID | Severity | Installed | Fixed |
           |---------|------------------|----------|-----------|-------|
           {{- range .Vulnerabilities }}
-          | `{{ .PkgName }}` | [{{ .VulnerabilityID }}](https://avd.aquasec.com/nvd/{{ .VulnerabilityID }}) | {{- if eq .Severity "CRITICAL" }}🟥 **`CRITICAL`**
-          {{- else if eq .Severity "HIGH" }}🟧 **`HIGH`**
-          {{- else if eq .Severity "MEDIUM" }}🟨 `MEDIUM`
-          {{- else if eq .Severity "LOW" }}🟦 `LOW`
-          {{- else }}⬜ `UNKNOWN`
-          {{- end }} | `{{ .InstalledVersion }}` | `{{ .FixedVersion }}` |
+          | `{{ .PkgName }}` | [{{ .VulnerabilityID }}](https://avd.aquasec.com/nvd/{{ .VulnerabilityID }}) | {{- if eq .Severity "CRITICAL" }}🟥 **`CRITICAL`**{{- else if eq .Severity "HIGH" }}🟧 **`HIGH`**{{- else if eq .Severity "MEDIUM" }}🟨 `MEDIUM`{{- else if eq .Severity "LOW" }}🟦 `LOW`{{- else }}⬜ `UNKNOWN`{{- end }} | `{{ .InstalledVersion }}` | `{{ .FixedVersion }}` |
           {{- end }}
           {{- else }}
           ✅ No vulnerabilities found.
           {{- end }}
 
-          {{ end }}
-          {{- if .Class }}
+          {{- end }}
           EOF
 
       - name: Trivy image Scan
