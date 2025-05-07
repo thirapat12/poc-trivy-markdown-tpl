@@ -83,7 +83,6 @@ jobs:
           {{- else }}
           ✅ No vulnerabilities found.
           {{- end }}
-
           {{- end }}
           ---
           EOF
