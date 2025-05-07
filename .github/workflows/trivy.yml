@@ -40,9 +40,8 @@ jobs:
           mkdir -p .trivy
           cat <<'EOF' > .trivy/github-markdown.tpl
           ## 📊 Trivy Scan Summary
-
+          
           {{ $crit := 0 }}{{ $high := 0 }}{{ $med := 0 }}{{ $low := 0 }}{{ $unk := 0 }}
-
           {{- range . }}
             {{- range .Vulnerabilities }}
               {{- if eq .Severity "CRITICAL" }}{{ $crit = add $crit 1 }}{{ end }}
@@ -52,39 +51,41 @@ jobs:
               {{- if eq .Severity "UNKNOWN" }}{{ $unk = add $unk 1 }}{{ end }}
             {{- end }}
           {{- end }}
-
+          
           ### 🚨 Vulnerability Count Summary
-
           | Severity       | Count        |
           |----------------|--------------|
           | 🟥 **`CRITICAL`** | **{{ $crit }}** |
           | 🟧 **`HIGH`**     | **{{ $high }}** |
-          | 🟨 `MEDIUM`     | {{ $med }}       |
-          | 🟦 `LOW`        | {{ $low }}       |
-          | ⬜ `UNKNOWN`    | {{ $unk }}       |
-
+          | 🟨 `MEDIUM`       | {{ $med }}       |
+          | 🟦 `LOW`          | {{ $low }}       |
+          | ⬜ `UNKNOWN`      | {{ $unk }}       |
+          
           ---
-
+          
           {{- range . }}
           ### 🔍 Target: `{{ .Target }}`
-          {{- if .Class }}  
-          *Class*: `{{ .Class }}`  
+          
+          {{- if .Class }}
+          **Class**: `{{ .Class }}`  
           {{- end }}
+          
           {{- if .Type }}
-          *Type*: `{{ .Type }}`  
+          **Type**: `{{ .Type }}`  
           {{- end }}
-
+          
           {{- if .Vulnerabilities }}
           | Package | Vulnerability ID | Severity | Installed | Fixed |
           |---------|------------------|----------|-----------|-------|
-          {{- range .Vulnerabilities }}
+            {{- range .Vulnerabilities }}
           | `{{ .PkgName }}` | [{{ .VulnerabilityID }}](https://avd.aquasec.com/nvd/{{ .VulnerabilityID }}) | {{- if eq .Severity "CRITICAL" }}🟥 **`CRITICAL`**{{- else if eq .Severity "HIGH" }}🟧 **`HIGH`**{{- else if eq .Severity "MEDIUM" }}🟨 `MEDIUM`{{- else if eq .Severity "LOW" }}🟦 `LOW`{{- else }}⬜ `UNKNOWN`{{- end }} | `{{ .InstalledVersion }}` | `{{ .FixedVersion }}` |
-          {{- end }}
+            {{- end }}
           {{- else }}
           ✅ No vulnerabilities found.
           {{- end }}
-          {{- end }}
+          
           ---
+          {{- end }}
           EOF
 
       - name: Trivy image Scan
