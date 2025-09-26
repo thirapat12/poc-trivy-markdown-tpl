@@ -1,0 +1,104 @@
+name: POC Trivy github markdown template
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+  # pull-requests: read
+  actions: write
+
+jobs:
+  trivy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # - name: Login to Docker Hub
+      #   uses: docker/login-action@v3
+      #   with:
+      #     username: ${{ vars.DOCKERHUB_USERNAME }}
+      #     password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          tags: thirapat12/thirapat12-node:12-alpine
+
+      - name: Create Trivy GitHub Markdown Template
+        run: |
+          mkdir -p .trivy
+          cat <<'EOF' > .trivy/github-markdown.tpl
+          ## 📊 Trivy Scan Summary
+          
+          {{ $crit := 0 }}{{ $high := 0 }}{{ $med := 0 }}{{ $low := 0 }}{{ $unk := 0 }}
+          {{- range . }}
+            {{- range .Vulnerabilities }}
+              {{- if eq .Severity "CRITICAL" }}{{ $crit = add $crit 1 }}{{ end }}
+              {{- if eq .Severity "HIGH" }}{{ $high = add $high 1 }}{{ end }}
+              {{- if eq .Severity "MEDIUM" }}{{ $med = add $med 1 }}{{ end }}
+              {{- if eq .Severity "LOW" }}{{ $low = add $low 1 }}{{ end }}
+              {{- if eq .Severity "UNKNOWN" }}{{ $unk = add $unk 1 }}{{ end }}
+            {{- end }}
+          {{- end }}
+          
+          ### 🚨 Vulnerability Count Summary
+          | Severity       | Count        |
+          |----------------|--------------|
+          | 🟥 **`CRITICAL`** | **{{ $crit }}** |
+          | 🟧 **`HIGH`**     | **{{ $high }}** |
+          | 🟨 `MEDIUM`       | {{ $med }}       |
+          | 🟦 `LOW`          | {{ $low }}       |
+          | ⬜ `UNKNOWN`      | {{ $unk }}       |
+          
+          ---
+          
+          {{- range . }}
+          ### 🔍 Target: `{{ .Target }}`
+          
+          {{- if .Class }}
+          **Class**: `{{ .Class }}`  
+          {{- end }}
+          
+          {{- if .Type }}
+          **Type**: `{{ .Type }}`  
+          {{- end }}
+          
+          {{- if .Vulnerabilities }}
+          | Package | Vulnerability ID | Severity | Installed | Fixed |
+          |---------|------------------|----------|-----------|-------|
+            {{- range .Vulnerabilities }}
+          | `{{ .PkgName }}` | [{{ .VulnerabilityID }}](https://avd.aquasec.com/nvd/{{ .VulnerabilityID }}) | {{- if eq .Severity "CRITICAL" }}🟥 **`CRITICAL`**{{- else if eq .Severity "HIGH" }}🟧 **`HIGH`**{{- else if eq .Severity "MEDIUM" }}🟨 `MEDIUM`{{- else if eq .Severity "LOW" }}🟦 `LOW`{{- else }}⬜ `UNKNOWN`{{- end }} | `{{ .InstalledVersion }}` | `{{ .FixedVersion }}` |
+            {{- end }}
+          {{- else }}
+          ✅ No vulnerabilities found.
+          {{- end }}
+          
+          ---
+          {{- end }}
+          EOF
+
+      - name: Trivy image Scan
+        uses: aquasecurity/trivy-action@0.30.0
+        with:
+          image-ref: thirapat12/thirapat12-node:12-alpine
+          format: template
+          template: '@.trivy/github-markdown.tpl'
+          output: 'trivy-report.md'
+          exit-code: 0
+          vuln-type: 'os,library'
+          ignore-unfixed: true
+
+      - name: Upload Trivy Report to GitHub Summary
+        run: |
+          cat trivy-report.md >> $GITHUB_STEP_SUMMARY
