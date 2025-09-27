@@ -117,7 +117,7 @@ jobs:
 
       - name: Add Timestamp to Markdown Report (Asia/Bangkok)
         run: |
-          ts="$(TZ=Asia/Bangkok date '+%Y-%m-%d %H:%M:%S %Z')"
+          ts="$(TZ=Asia/Bangkok date '+%d-%m-%Y %H:%M:%S')"
           sed -i "s|<!-- add timestamp here via shell or workflow if needed -->|$ts|" trivy-report.md
 
       - name: Upload Trivy Report to GitHub Summary
