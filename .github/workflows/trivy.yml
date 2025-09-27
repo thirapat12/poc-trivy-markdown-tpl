@@ -40,7 +40,7 @@ jobs:
           mkdir -p .trivy
           cat <<'EOF' > .trivy/github-markdown.tpl
           ## 📊 Trivy Scan Summary
-          **Template version:** v1.1.0  
+          **Version:** v1.1.0  
           **Maintainer:** [ AIS ITQAD Team ](mailto:itqad-devsecops@ais.co.th)  
           **Scan Timestamp:** <!-- add timestamp here via shell or workflow if needed -->
 
