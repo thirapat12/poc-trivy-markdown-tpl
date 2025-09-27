@@ -115,6 +115,11 @@ jobs:
           vuln-type: 'os,library'
           ignore-unfixed: true
 
+      - name: Add Timestamp to Markdown Report
+        run: |
+          ts="$(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          sed -i "s|<!-- add timestamp here via shell or workflow if needed -->|$ts|" trivy-report.md          
+
       - name: Upload Trivy Report to GitHub Summary
         run: |
           cat trivy-report.md >> $GITHUB_STEP_SUMMARY
