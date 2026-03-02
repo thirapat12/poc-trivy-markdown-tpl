@@ -36,82 +36,85 @@ jobs:
           push: false
           tags: thirapat12/thirapat12-node:12-alpine
 
-      # - name: Create Trivy GitHub Markdown Template
-      #   run: |
-      #     mkdir -p .trivy
-      #     cat <<'EOF' > .trivy/github-markdown.tpl
-      #     ## 📊 Trivy Scan Summary
-      #     **Template version:** v1.1.0  
-      #     **Maintainer:** [ AIS ITQAD Team ](mailto:itqad-devsecops@ais.co.th)  
-      #     **Scan Timestamp:** <!-- add timestamp here via shell or workflow if needed -->
+      - name: Create Trivy GitHub Markdown Template
+        run: |
+          mkdir -p .trivy
+          cat <<'EOF' > .trivy/github-markdown.tpl
+          ## 📊 Trivy Scan Summary
+          **Template version:** v1.1.0  
+          **Maintainer:** [ AIS ITQAD Team ](mailto:itqad-devsecops@ais.co.th)  
+          **Scan Timestamp:** <!-- add timestamp here via shell or workflow if needed -->
           
-      #     ---
+          ---
           
-      #     {{ $crit := 0 }}{{ $high := 0 }}{{ $med := 0 }}{{ $low := 0 }}{{ $unk := 0 }}{{ $targets := 0 }}
-      #     {{- range . }}
-      #       {{ $targets = add $targets 1 }}
-      #       {{- range .Vulnerabilities }}
-      #         {{- if eq .Severity "CRITICAL" }}{{ $crit = add $crit 1 }}{{ end }}
-      #         {{- if eq .Severity "HIGH" }}{{ $high = add $high 1 }}{{ end }}
-      #         {{- if eq .Severity "MEDIUM" }}{{ $med = add $med 1 }}{{ end }}
-      #         {{- if eq .Severity "LOW" }}{{ $low = add $low 1 }}{{ end }}
-      #         {{- if eq .Severity "UNKNOWN" }}{{ $unk = add $unk 1 }}{{ end }}
-      #       {{- end }}
-      #     {{- end }}
-      #     {{ $sum := add (add (add (add $crit $high) $med) $low) $unk }}
+          {{ $crit := 0 }}{{ $high := 0 }}{{ $med := 0 }}{{ $low := 0 }}{{ $unk := 0 }}{{ $targets := 0 }}
+          {{- range . }}
+            {{ $targets = add $targets 1 }}
+            {{- range .Vulnerabilities }}
+              {{- if eq .Severity "CRITICAL" }}{{ $crit = add $crit 1 }}{{ end }}
+              {{- if eq .Severity "HIGH" }}{{ $high = add $high 1 }}{{ end }}
+              {{- if eq .Severity "MEDIUM" }}{{ $med = add $med 1 }}{{ end }}
+              {{- if eq .Severity "LOW" }}{{ $low = add $low 1 }}{{ end }}
+              {{- if eq .Severity "UNKNOWN" }}{{ $unk = add $unk 1 }}{{ end }}
+            {{- end }}
+          {{- end }}
+          {{ $sum := add (add (add (add $crit $high) $med) $low) $unk }}
           
-      #     ### 🚦 Scan Status: {{ if or (gt $crit 0) (gt $high 0) }}❌ **Failed**{{ else }}✅ **Passed**{{ end }}
+          ### 🚦 Scan Status: {{ if or (gt $crit 0) (gt $high 0) }}❌ **Failed**{{ else }}✅ **Passed**{{ end }}
           
-      #     | Severity  | Count |
-      #     |:----------|------:|
-      #     | 🟥 **CRITICAL** | **{{ $crit }}** |
-      #     | 🟧 **HIGH**     | **{{ $high }}** |
-      #     | 🟨 MEDIUM       | {{ $med }}      |
-      #     | 🟦 LOW          | {{ $low }}      |
-      #     | ⬜ UNKNOWN      | {{ $unk }}      |
-      #     | **SUM**         | **{{ $sum }}**  |
+          | Severity  | Count |
+          |:----------|------:|
+          | 🟥 **CRITICAL** | **{{ $crit }}** |
+          | 🟧 **HIGH**     | **{{ $high }}** |
+          | 🟨 MEDIUM       | {{ $med }}      |
+          | 🟦 LOW          | {{ $low }}      |
+          | ⬜ UNKNOWN      | {{ $unk }}      |
+          | **SUM**         | **{{ $sum }}**  |
           
-      #     > **Scanned Targets:** {{ $targets }}
+          > **Scanned Targets:** {{ $targets }}
           
-      #     ---
+          ---
           
-      #     {{- if or (gt $crit 0) (gt $high 0) }}
-      #     ### ⚠️ **Action Required**
-      #     โปรดตรวจสอบและแก้ไขช่องโหว่ระดับ Critical/High โดยด่วน  
+          {{- if or (gt $crit 0) (gt $high 0) }}
+          ### ⚠️ **Action Required**
+          โปรดตรวจสอบและแก้ไขช่องโหว่ระดับ Critical/High โดยด่วน  
           
-      #     ---
-      #     {{- end }}
+          ---
+          {{- end }}
           
-      #     {{- range . }}
-      #     ### 🔍 Target: `{{ .Target }}`
-      #     {{- if .Class }}  
-      #     Class: `{{ .Class }}`  
-      #     {{- end }}
-      #     {{- if .Type }}
-      #     Type: `{{ .Type }}`  
-      #     {{- end }}
+          {{- range . }}
+          ### 🔍 Target: `{{ .Target }}`
+          {{- if .Class }}  
+          Class: `{{ .Class }}`  
+          {{- end }}
+          {{- if .Type }}
+          Type: `{{ .Type }}`  
+          {{- end }}
           
-      #     {{- if .Vulnerabilities }}
-      #     | Package | FilePath | Vulnerability ID | Severity | Installed | Fixed | Title |
-      #     |:--------|:---------|:----------------|:---------|:----------|:------|:------|
-      #     {{- range .Vulnerabilities }}
-      #     | `{{ .PkgName }}` | {{ if .PkgPath }} `{{ .PkgPath }}` {{ else }} - {{ end }} | [{{ .VulnerabilityID }}](https://avd.aquasec.com/nvd/{{ .VulnerabilityID }}) | {{ if eq .Severity "CRITICAL" }}🟥 **{{ .Severity }}**{{ else if eq .Severity "HIGH" }}🟧 **{{ .Severity }}**{{ else if eq .Severity "MEDIUM" }}🟨 {{ .Severity }}{{ else if eq .Severity "LOW" }}🟦 {{ .Severity }}{{ else }}⬜ {{ .Severity }}{{ end }} | `{{ .InstalledVersion }}` | {{ if .FixedVersion }} `{{ .FixedVersion }}` {{ else }} - {{ end }} | {{ .Title }} |
-      #     {{- end }}
-      #     {{- else }}
-      #     ✅ **No vulnerabilities found.**
-      #     {{- end }}
+          {{- if .Vulnerabilities }}
+          | Package | FilePath | Vulnerability ID | Severity | Installed | Fixed | Title |
+          |:--------|:---------|:----------------|:---------|:----------|:------|:------|
+          {{- range .Vulnerabilities }}
+          | `{{ .PkgName }}` | {{ if .PkgPath }} `{{ .PkgPath }}` {{ else }} - {{ end }} | [{{ .VulnerabilityID }}](https://avd.aquasec.com/nvd/{{ .VulnerabilityID }}) | {{ if eq .Severity "CRITICAL" }}🟥 **{{ .Severity }}**{{ else if eq .Severity "HIGH" }}🟧 **{{ .Severity }}**{{ else if eq .Severity "MEDIUM" }}🟨 {{ .Severity }}{{ else if eq .Severity "LOW" }}🟦 {{ .Severity }}{{ else }}⬜ {{ .Severity }}{{ end }} | `{{ .InstalledVersion }}` | {{ if .FixedVersion }} `{{ .FixedVersion }}` {{ else }} - {{ end }} | {{ .Title }} |
+          {{- end }}
+          {{- else }}
+          ✅ **No vulnerabilities found.**
+          {{- end }}
           
-      #     ---
-      #     {{- end }}
+          ---
+          {{- end }}
           
-      #     <sub>Report generated by [ITQAD] | Template inspired by ITQA Team</sub>
-      #     EOF
+          <sub>Report generated by [ITQAD] | Template inspired by ITQA Team</sub>
+          EOF
 
       - name: Trivy image Scan
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: thirapat12/thirapat12-node:12-alpine
-          exit-code: '0'
+          format: template
+          template: '@.trivy/github-markdown.tpl'
+          output: 'trivy-report.md'
+          exit-code: 1
           severity: "CRITICAL,HIGH"
           ignore-unfixed: true
         continue-on-error: true
