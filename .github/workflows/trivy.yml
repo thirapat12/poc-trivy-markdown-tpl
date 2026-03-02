@@ -114,6 +114,7 @@ jobs:
           template: '@.trivy/github-markdown.tpl'
           output: 'trivy-report.md'
           vuln-type: 'os,library'
+          exit-code: 0
           severity: "CRITICAL,HIGH,MEDIUM,LOW,UNKNOWN" # All vulnerabilities
           ignore-unfixed: true
         continue-on-error: true
