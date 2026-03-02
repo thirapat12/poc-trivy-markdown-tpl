@@ -111,17 +111,16 @@ jobs:
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: thirapat12/thirapat12-node:12-alpine
-          vuln-type: 'os, library'
           exit-code: '0'
           severity: "CRITICAL,HIGH"
           ignore-unfixed: true
         continue-on-error: true
 
-      - name: Add Timestamp to Markdown Report (Asia/Bangkok)
-        run: |
-          ts="$(TZ=Asia/Bangkok date '+%d-%m-%Y %H:%M:%S')"
-          sed -i "s|<!-- add timestamp here via shell or workflow if needed -->|$ts|" trivy-report.md
+      # - name: Add Timestamp to Markdown Report (Asia/Bangkok)
+      #   run: |
+      #     ts="$(TZ=Asia/Bangkok date '+%d-%m-%Y %H:%M:%S')"
+      #     sed -i "s|<!-- add timestamp here via shell or workflow if needed -->|$ts|" trivy-report.md
 
-      - name: Upload Trivy Report to GitHub Summary
-        run: |
-          cat trivy-report.md >> $GITHUB_STEP_SUMMARY
+      # - name: Upload Trivy Report to GitHub Summary
+      #   run: |
+      #     cat trivy-report.md >> $GITHUB_STEP_SUMMARY
