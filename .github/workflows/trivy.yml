@@ -114,7 +114,6 @@ jobs:
           format: template
           template: '@.trivy/github-markdown.tpl'
           output: 'trivy-report.md'
-          exit-code: 1
           severity: "CRITICAL,HIGH"
           ignore-unfixed: true
         continue-on-error: true
