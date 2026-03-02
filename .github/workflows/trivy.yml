@@ -107,14 +107,16 @@ jobs:
           EOF
 
       - name: Trivy image Scan
-        uses: aquasecurity/trivy-action@0.30.0
+        uses: aquasecurity/trivy-action@0.34.1
         with:
           image-ref: thirapat12/thirapat12-node:12-alpine
           format: template
           template: '@.trivy/github-markdown.tpl'
           output: 'trivy-report.md'
           vuln-type: 'os,library'
+          severity: "CRITICAL,HIGH,MEDIUM,LOW,UNKNOWN" # All vulnerabilities
           ignore-unfixed: true
+        continue-on-error: true
 
       - name: Add Timestamp to Markdown Report (Asia/Bangkok)
         run: |
