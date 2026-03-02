@@ -113,7 +113,6 @@ jobs:
           format: template
           template: '@.trivy/github-markdown.tpl'
           output: 'trivy-report.md'
-          exit-code: 0
           vuln-type: 'os,library'
           ignore-unfixed: true
 
