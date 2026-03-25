@@ -32,7 +32,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: .
+          context: ./prod/Dockerfile-12
           push: false
           tags: thirapat12/thirapat12-node:12-alpine
 
